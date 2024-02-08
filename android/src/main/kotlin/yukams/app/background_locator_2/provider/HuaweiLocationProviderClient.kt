@@ -2,9 +2,10 @@ package yukams.app.background_locator_2.provider
 
 import android.annotation.SuppressLint
 import android.content.Context
-import com.google.android.gms.location.*
+import android.os.Looper
+import com.huawei.hms.location.*
 
-class GoogleLocationProviderClient(context: Context, override var listener: LocationUpdateListener?) : BLLocationProvider {
+class HuaweiLocationProviderClient(context: Context, override var listener: LocationUpdateListener?) : BLLocationProvider {
     private val client: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
     private val locationCallback = LocationListener(listener)
 
@@ -14,7 +15,7 @@ class GoogleLocationProviderClient(context: Context, override var listener: Loca
 
     @SuppressLint("MissingPermission")
     override fun requestLocationUpdates(request: LocationRequestOptions) {
-        client.requestLocationUpdates(getLocationRequest(request), locationCallback, null)
+        client.requestLocationUpdates(getLocationRequest(request), locationCallback, Looper.getMainLooper())
     }
 
     private fun getLocationRequest(request: LocationRequestOptions): LocationRequest {

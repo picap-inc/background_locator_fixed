@@ -1,3 +1,4 @@
+
 package yukams.app.background_locator_2
 
 import android.Manifest
@@ -6,7 +7,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
-import com.google.android.gms.location.LocationRequest
+import com.huawei.hms.location.LocationRequest
 import io.flutter.FlutterInjector
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.dart.DartExecutor

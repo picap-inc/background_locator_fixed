@@ -288,7 +288,7 @@ class IsolateHolderService : MethodChannel.MethodCallHandler, LocationUpdateList
 
     private fun getLocationClient(context: Context): BLLocationProvider {
         return when (PreferencesManager.getLocationClient(context)) {
-            LocationClient.Google -> GoogleLocationProviderClient(context, this)
+            LocationClient.Huawei -> HuaweiLocationProviderClient(context, this)
             LocationClient.Android -> AndroidLocationProviderClient(context, this)
         }
     }

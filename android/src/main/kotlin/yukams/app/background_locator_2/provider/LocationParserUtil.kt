@@ -2,7 +2,7 @@ package yukams.app.background_locator_2.provider
 
 import android.location.Location
 import android.os.Build
-import com.google.android.gms.location.LocationResult
+import com.huawei.hms.location.LocationResult
 import yukams.app.background_locator_2.Keys
 import java.util.HashMap
 
@@ -29,7 +29,7 @@ class LocationParserUtil {
                     Keys.ARG_HEADING to location.bearing,
                     Keys.ARG_TIME to location.time.toDouble(),
                     Keys.ARG_PROVIDER to location.provider,
-            )
+            ) as HashMap<Any, Any>
         }
 
         fun getLocationMapFromLocation(location: LocationResult?): HashMap<Any, Any>? {
