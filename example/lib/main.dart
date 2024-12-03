@@ -8,7 +8,6 @@ import 'package:background_locator_2/settings/android_settings.dart';
 import 'package:background_locator_2/settings/ios_settings.dart';
 import 'package:background_locator_2/settings/locator_settings.dart';
 import 'package:flutter/material.dart';
-import 'package:location_permissions/location_permissions.dart';
 
 import 'file_manager.dart';
 import 'location_callback_handler.dart';
@@ -180,27 +179,28 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<bool> _checkLocationPermission() async {
-    final access = await LocationPermissions().checkPermissionStatus();
-    switch (access) {
-      case PermissionStatus.unknown:
-      case PermissionStatus.denied:
-      case PermissionStatus.restricted:
-        final permission = await LocationPermissions().requestPermissions(
-          permissionLevel: LocationPermissionLevel.locationAlways,
-        );
-        if (permission == PermissionStatus.granted) {
-          return true;
-        } else {
-          return false;
-        }
-        break;
-      case PermissionStatus.granted:
-        return true;
-        break;
-      default:
-        return false;
-        break;
-    }
+    // final access = await LocationPermissions().checkPermissionStatus();
+    // switch (access) {
+    //   case PermissionStatus.unknown:
+    //   case PermissionStatus.denied:
+    //   case PermissionStatus.restricted:
+    //     final permission = await LocationPermissions().requestPermissions(
+    //       permissionLevel: LocationPermissionLevel.locationAlways,
+    //     );
+    //     if (permission == PermissionStatus.granted) {
+    //       return true;
+    //     } else {
+    //       return false;
+    //     }
+    //     break;
+    //   case PermissionStatus.granted:
+    //     return true;
+    //     break;
+    //   default:
+    //     return false;
+    //     break;
+    return false;
+    //
   }
 
   Future<void> _startLocator() async{
