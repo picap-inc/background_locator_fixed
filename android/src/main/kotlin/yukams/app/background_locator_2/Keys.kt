@@ -24,10 +24,10 @@ class Keys {
         val DISPOSE_CALLBACK_HANDLE_KEY = "DISPOSE_CALLBACK_HANDLE_KEY"
 
         @JvmStatic
-        val CHANNEL_ID = "picap.co/locator_plugin"
+        val CHANNEL_ID = "picap_locator"
 
         @JvmStatic
-        val BACKGROUND_CHANNEL_ID = "picap.co/locator_plugin_background"
+        val BACKGROUND_CHANNEL_ID = "picap_locator_background"
 
         @JvmStatic
         val METHOD_SERVICE_INITIALIZED = "LocatorService.initialized"
