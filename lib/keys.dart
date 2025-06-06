@@ -1,7 +1,7 @@
 class Keys {
-  static const String CHANNEL_ID = 'picap.co/locator_plugin';
+  static const String CHANNEL_ID = 'picap_locator';
   static const String BACKGROUND_CHANNEL_ID =
-      'picap.co/locator_plugin_background';
+      'picap_locator_background';
 
   static const String METHOD_SERVICE_INITIALIZED = 'LocatorService.initialized';
   static const String METHOD_PLUGIN_INITIALIZE_SERVICE =
