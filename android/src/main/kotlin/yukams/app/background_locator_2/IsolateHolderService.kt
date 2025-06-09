@@ -104,16 +104,21 @@ class IsolateHolderService : MethodChannel.MethodCallHandler, LocationUpdateList
     private fun getNotification(): Notification {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             // Notification channel is available in Android O and up
-            val channelName = notificationChannelName ?: "Picap"
-            var channelID = Keys.CHANNEL_ID ?: "picap_locator"
+            val safeChannelName = notificationChannelName?.takeIf { it.isNotBlank() } ?: "Picap"
+            val safeChannelID = Keys.CHANNEL_ID?.takeIf { it.isNotBlank() } ?: "picap_locator"
             val channel = NotificationChannel(
-                channelID, channelName,
+                safeChannelID, safeChannelName,
                 NotificationManager.IMPORTANCE_LOW
             )
 
             val notificationManager =
                 getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
-            notificationManager?.createNotificationChannel(channel)
+            try {
+                notificationManager?.createNotificationChannel(channel)
+            } catch (e: IllegalArgumentException) {
+                Log.e("LocatorService", "Error creando canal: ${e.message}", e)
+                // Opcional: Reportar a Crashlytics
+            }
         }
 
         val intent = Intent(this, getMainActivityClass(this))
