@@ -11,6 +11,7 @@ import android.os.PowerManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
 import io.flutter.FlutterInjector
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.BinaryMessenger
@@ -80,8 +81,53 @@ class IsolateHolderService : MethodChannel.MethodCallHandler, LocationUpdateList
 
     override fun onCreate() {
         super.onCreate()
+
+        // ✅ CRITICAL FIX for Android 14+/15 (targetSdk 34+/36):
+        // Verify location permissions BEFORE calling startForeground()
+        // This prevents SecurityException when starting FGS with type location
+        if (!hasLocationPermissions()) {
+            Log.e(
+                "IsolateHolderService",
+                "❌ Cannot start foreground service: Location permissions not granted. " +
+                "Required: ACCESS_FINE_LOCATION or ACCESS_COARSE_LOCATION. " +
+                "This is mandatory for Android 14+ (API 34+) with targetSdk 36."
+            )
+            stopSelf()
+            return
+        }
+
+        Log.d(
+            "IsolateHolderService",
+            "✅ Location permissions verified, starting foreground service"
+        )
+
         startLocatorService(this)
         startForeground(notificationId, getNotification())
+    }
+
+    /**
+     * Checks if the app has location permissions required for foreground service.
+     * Required for Android 14+ (API 34+) with targetSdk 36.
+     *
+     * @return true if ACCESS_FINE_LOCATION or ACCESS_COARSE_LOCATION is granted
+     */
+    private fun hasLocationPermissions(): Boolean {
+        val fineLocation = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        val coarseLocation = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        Log.d(
+            "IsolateHolderService",
+            "Permission check - Fine: $fineLocation, Coarse: $coarseLocation"
+        )
+
+        return fineLocation || coarseLocation
     }
 
     private fun start() {
