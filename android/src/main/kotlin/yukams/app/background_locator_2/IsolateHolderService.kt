@@ -47,6 +47,11 @@ class IsolateHolderService : MethodChannel.MethodCallHandler, LocationUpdateList
         @JvmStatic
         var isServiceRunning = false
 
+        /** Nombre del ícono de la notificación, para recuperarlo si el
+         *  servicio se recrea (ver resolveSmallIcon). */
+        private const val PREF_NOTIFICATION_ICON_NAME = "notification_icon_name"
+
+
         @JvmStatic
         var isServiceInitialized = false
 
@@ -147,6 +152,30 @@ class IsolateHolderService : MethodChannel.MethodCallHandler, LocationUpdateList
         }
     }
 
+    /**
+     * El ícono pequeño, nunca 0: una notificación sin ícono válido hace que
+     * NotificationManager.notify lance IllegalArgumentException ("no valid
+     * small icon") y se cierre la app. Pasaba cuando el servicio recibía
+     * UPDATE_NOTIFICATION sin haber pasado por startHolderService.
+     * Orden: el calculado al arrancar → el nombre guardado (mipmap o
+     * drawable) → el ícono de la app.
+     */
+    private fun resolveSmallIcon(): Int {
+        if (icon != 0) return icon
+        val saved = getSharedPreferences(Keys.SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE)
+            .getString(PREF_NOTIFICATION_ICON_NAME, null)
+        if (!saved.isNullOrEmpty()) {
+            val fromMipmap = resources.getIdentifier(saved, "mipmap", packageName)
+            val resolved = if (fromMipmap != 0) fromMipmap
+            else resources.getIdentifier(saved, "drawable", packageName)
+            if (resolved != 0) {
+                icon = resolved
+                return icon
+            }
+        }
+        return applicationInfo.icon
+    }
+
     private fun getNotification(): Notification {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             // Notification channel is available in Android O and up
@@ -182,7 +211,7 @@ class IsolateHolderService : MethodChannel.MethodCallHandler, LocationUpdateList
                 NotificationCompat.BigTextStyle()
                     .bigText(notificationBigMsg)
             )
-            .setSmallIcon(icon)
+            .setSmallIcon(resolveSmallIcon())
             .setColor(notificationIconColor)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent)
@@ -253,6 +282,13 @@ class IsolateHolderService : MethodChannel.MethodCallHandler, LocationUpdateList
             iconName = iconNameDefault
         }
         icon = resources.getIdentifier(iconName, "mipmap", packageName)
+        // Se guarda para poder recuperarlo si el servicio se recrea sin pasar
+        // por aquí (el sistema lo revive con START_STICKY) y le llega una
+        // actualización de la notificación: con ícono 0 Android tumba la app.
+        getSharedPreferences(Keys.SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE)
+            .edit()
+            .putString(PREF_NOTIFICATION_ICON_NAME, iconName)
+            .apply()
         notificationIconColor =
             intent.getLongExtra(Keys.SETTINGS_ANDROID_NOTIFICATION_ICON_COLOR, 0).toInt()
         wakeLockTime = intent.getIntExtra(Keys.SETTINGS_ANDROID_WAKE_LOCK_TIME, 60) * 60 * 1000L
